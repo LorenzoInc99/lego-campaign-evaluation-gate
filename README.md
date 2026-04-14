@@ -1,5 +1,9 @@
 # Evaluation and governance for LLM campaign suggestions
 
+**Stakeholder / manager conversation:** use **[`docs/management-brief.md`](docs/management-brief.md)** as the narrative spine (problem, outcome, boundaries); use this README for technical detail and reproduction.
+
+---
+
 This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. If you are reviewing it for a hiring decision, the quickest path is to read the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)), then skim [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
 
 ---
