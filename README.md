@@ -6,7 +6,7 @@ This repository is a **work sample** for the **Analytics Engineer** role in **In
 
 ---
 
-## Role context (job you are hiring for)
+## Context
 
 The posting describes a team of four **building from scratch** in **Innovation & Automation**: **evaluation and governance systems** for products that support **commercial decisions** (e.g. **campaign optimisation**), with partners such as the **Data Office** and **Digital Product**. The team sits between **Analytics Engineering** (data foundation) and **Analytics Interface** (business products)—shaping **standards, evaluation frameworks, governance, and tooling**.
 
