@@ -1,0 +1,2 @@
+# Python 3.10+ — this project uses the standard library only (urllib, sqlite3, etc.).
+# No pip packages are required to run the evaluation scripts.

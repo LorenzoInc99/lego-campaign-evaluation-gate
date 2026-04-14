@@ -1,0 +1,42 @@
+# Unrelated nested sample (different project; has its own .git) — remove this line to track it
+github-showcase/
+
+# Ad-hoc zips (sources live under report/ and version control)
+report.zip
+report/overleaf.zip
+
+# Local evaluation database (recreated on run)
+data/runs.sqlite
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Local run data (optional: track schema only; uncomment if you prefer not to commit DB)
+# data/runs.sqlite
+
+# LaTeX
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fdb_latexmk
+report/*.fls
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
