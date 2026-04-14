@@ -1,4 +1,4 @@
-# Phase 3 Evaluation Report
+# Evaluation report
 
 ## Run Overview
 - Baseline run id: `21`

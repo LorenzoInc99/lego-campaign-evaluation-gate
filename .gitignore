@@ -1,3 +1,10 @@
+# Private application materials (CV, cover letter, job postings) — keep local only
+cv-*.md
+cover-letter*.md
+jobdescription.md
+PHASE*.md
+ROUTING_SUGGESTION.md
+
 # Unrelated nested sample (different project; has its own .git) — remove this line to track it
 github-showcase/
 

@@ -2,9 +2,8 @@
 
 **Primary artifacts (read these first):**
 
-- `FINAL_DECISION_STORY.md` — one-screen portfolio decision (BLOCK v3 globally)
+- `FINAL_DECISION_STORY.md` — one-screen decision summary (BLOCK v3 as global default)
 - `reports/segment_report.md` — per-segment and rollup signals (where v3 wins / loses)
-- `ROUTING_SUGGESTION.md` — optional routing idea only (not implemented)
 
 ## Suite definition (`data/validation_suite.jsonl`)
 
@@ -71,9 +70,9 @@ Eight cases chosen for coverage and robustness:
 - **TC01** improved strongly under the candidate prompt (aligned with the single-case experiment).
 - **TC10** dropped sharply — sustainability / parents + educators / YouTube + LinkedIn is hard; candidate output likely missed structure or channel fit vs baseline on this run.
 - **Portfolio mean** still regressed on actionability and aggregate, so the **release gate correctly blocks** promotion of `v3` as the default for all brief types without further iteration.
-- **Recommendation:** Treat `v3` as promising for structured launches (e.g. TC01) but **not** as a blind replacement; refine for multi-audience / EU / stress cases or use **routing** (different prompts per campaign type).
+- **Recommendation:** Treat `v3` as promising for structured launches (e.g. TC01) but **not** as a blind replacement; refine for multi-audience / EU / stress cases or use **separate prompt paths** by campaign type.
 
 ## Artifacts
 
-- `reports/latest_report.md` — full Phase 3 report for runs 21 vs 22
-- `reports/phase4_observability_report.md` — trend + governance history
+- `reports/latest_report.md` — full pairwise report for runs 21 vs 22
+- `reports/observability_report.md` — run trends + governance decision history

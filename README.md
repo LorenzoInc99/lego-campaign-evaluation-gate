@@ -4,7 +4,7 @@
 
 ---
 
-This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. If you are reviewing it for a hiring decision, the quickest path is to read the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)), then skim [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
+This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. The quickest path to understand the work is the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)), then [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
 
 ---
 
@@ -52,7 +52,7 @@ The repository includes a **completed reference run** so you can judge both the 
 | **Markdown reports** | e.g. [`reports/latest_report.md`](reports/latest_report.md) — pairwise deltas, scorecard, **failed gate checks** (aggregate drop 6.23% > 5%, actionability drop 9.47% > 8%, variance stability), and proxy panel. |
 | **Gate logic** | Threshold-based **BLOCK** with explicit reasons; variance gate active because *n* ≥ 5. |
 
-Re-running the scripts with your own API key will create **new** run IDs; the numbers above stay valid as the **checked-in illustrative outcome** tied to the case study PDF and phase notes.
+Re-running the scripts with your own API key will create **new** run IDs; the numbers above stay valid as the **checked-in illustrative outcome** tied to the case study PDF.
 
 ---
 
@@ -94,9 +94,9 @@ flowchart TB
 | `data/` | Test suites (`test_cases.jsonl`, `validation_suite.jsonl`, …) |
 | `reports/` | Example generated Markdown outputs |
 | `report/` | LaTeX case study (PDF builds locally or via Overleaf; see `report/overleaf/`) |
-| `docs/` | Concise narrative aligned with the PDF |
+| `docs/` | Case study and management brief |
 
-Design notes and iteration history appear in `PHASE*.md` and `FINAL_DECISION_STORY.md`.
+Supporting narratives: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md), [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md).
 
 ---
 
@@ -120,7 +120,7 @@ python scripts/run_candidate.py
 python scripts/generate_report.py
 ```
 
-Additional scripts: `compare_runs.py`, `generate_segment_report.py`, `generate_phase4_report.py`.
+Additional scripts: `compare_runs.py`, `generate_segment_report.py`, `generate_observability_report.py`.
 
 **PDF:** `cd report && ./build_pdf.sh` produces `LEGO_Case_Study_Report.pdf` when a LaTeX toolchain is available.
 

@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = ROOT / "data" / "runs.sqlite"
-REPORT_PATH = ROOT / "reports" / "phase4_observability_report.md"
+REPORT_PATH = ROOT / "reports" / "observability_report.md"
 
 
 def _trend_label(first: float, last: float, stable_band: float = 0.15) -> str:
@@ -80,7 +80,7 @@ def main() -> None:
     top_failed = failed_counter.most_common(5)
 
     lines = []
-    lines.append("# Phase 4 Observability and Governance Report")
+    lines.append("# Observability and governance report")
     lines.append("")
     lines.append("## Run Trend Overview")
     lines.append("| run_id | run_type | relevance | actionability | constraints | structure | aggregate |")
@@ -121,7 +121,7 @@ def main() -> None:
 
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Phase 4 report generated at {REPORT_PATH}")
+    print(f"Observability report written to {REPORT_PATH}")
 
 
 if __name__ == "__main__":

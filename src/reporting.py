@@ -37,7 +37,7 @@ def build_report(
     else:
         business_lines.append("- Business proxy data not available.")
 
-    return f"""# Phase 3 Evaluation Report
+    return f"""# Evaluation report
 
 ## Run Overview
 - Baseline run id: `{baseline_run_id}`

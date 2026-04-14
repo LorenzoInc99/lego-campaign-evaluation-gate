@@ -1,4 +1,4 @@
-# Phase 4 Observability and Governance Report
+# Observability and governance report
 
 ## Run Trend Overview
 | run_id | run_type | relevance | actionability | constraints | structure | aggregate |
