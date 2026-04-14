@@ -1,65 +1,140 @@
-# Evaluation and governance for LLM campaign suggestions
+# Portfolio: LLM evaluation & governance (Analytics Engineer application)
 
-Portfolio sample: an **offline evaluation gate** for LLM-generated campaign actions—same test briefs, **baseline vs. candidate** prompts, **scoring**, **quality gate**, persisted runs and reports.
+This repository is a **work sample** for the **Analytics Engineer** role in **Innovation & Automation** (Analytics & Insights): an **offline evaluation gate** for LLM-generated **campaign** suggestions—structured **benchmarks**, **baseline vs. candidate** comparison, **quality gates**, and **auditable** outputs.
 
-**More narrative:** [`docs/project-story.md`](docs/project-story.md) · **Stakeholder brief:** [`docs/management-brief.md`](docs/management-brief.md) · **PDFs:** build from [`report/`](report/README.md) (`LEGO_Case_Study_Report.tex`, `Project_Development_Report.tex`)
+**Also read:** [`docs/project-story.md`](docs/project-story.md) · [`docs/management-brief.md`](docs/management-brief.md) · PDFs: [`report/README.md`](report/README.md)
+
+---
+
+## Role context (job you are hiring for)
+
+The posting describes a team of four **building from scratch** in **Innovation & Automation**: **evaluation and governance systems** for products that support **commercial decisions** (e.g. **campaign optimisation**), with partners such as the **Data Office** and **Digital Product**. The team sits between **Analytics Engineering** (data foundation) and **Analytics Interface** (business products)—shaping **standards, evaluation frameworks, governance, and tooling**.
+
+**Themes from the role that this sample speaks to**
+
+| Theme in the posting | In plain terms |
+|----------------------|----------------|
+| **Evaluation frameworks** for LLM / agent outputs | Benchmarks + scoring when there is no single “correct” answer |
+| **Structured regression** | Same inputs, **two** prompt versions, comparable metrics |
+| **Observability** | Run history, reports, trend-style views from stored runs |
+| **AI governance / quality gates** | Explicit **PROMOTE** / **BLOCK** rules with documented reasons |
+| **Python, SQL, REST** | Python codebase; **SQLite** + SQL-shaped queries; **Gemini REST API** |
+| **Lifecycle** (not only training) | Versioned prompts, repeatable runs, decision trail |
+
+**Out of scope in this repo (called out as natural next steps):** Databricks deployment pipelines, **GitHub Actions** CI, full **drift** monitoring in production—the pattern here is sized for a **portfolio proof** and extends in those directions.
+
+<details>
+<summary><strong>Full job description (reference — text from posting)</strong></summary>
+
+**Job description**
+
+We are looking for an **Analytics Engineer** to join our **Innovation & Automation** group within **Analytics & Insights**. You'll be building **evaluation and governance systems** for real products that power commercial decisions – **forecasting, pricing, campaign optimisation**.
+
+This is a **team of four, building from scratch** – with strong backing from Analytics & Insights leadership and close collaboration with key partners like the **Data Office** and **Digital Product** teams. The standards, the evaluation frameworks, the governance practices, the tooling – all of it is being shaped now, and you'd be part of shaping it.
+
+**Analytics & Insights - Innovation & Automation** Team sits at the centre of a three-team value chain in M&C Analytics: **Analytics Engineering** builds the data foundation, **we** build the AI and automation capability engine, **Analytics Interface** delivers the business products.
+
+Come and join us in **Billund** at one of the most loved brands in the world where you can have maximum impact!
+
+*Please apply with an English CV. No relocation support offered.*
+
+**Core responsibilities**
+
+- Build **evaluation frameworks** for LLM and agent outputs: automated benchmarks, structured regression suites, and human-in-the-loop review where ground-truth datasets don't exist.
+- **Instrument observability** into AI systems – accuracy monitoring, drift detection, and clear connection between system behaviour and business outcomes.
+- **Design deployment pipelines** for AI products – model serving endpoints, agent workflows, and LLM-based applications on **Databricks**.
+- Shape **AI governance** through **production quality gates**, lifecycle management, and systematic review that makes **reliability an engineering discipline**, not a compliance exercise.
+- Build **reusable templates**, **CI/CD** pipelines (GitHub Actions, Declarative Automation Bundles), and composable platform components.
+- Build and ship AI products from architecture through production monitoring, partnering with **Digital Product** and the **Data Office** where scope overlaps.
+- Support testing and onboarding of emerging platform capabilities with the **Data Office** establishing adoption standards for analytics.
+
+**Do you have what it takes**
+
+- Strong **Python** engineering: clean, typed, production-ready code as a default.
+- **SQL** proficiency: efficient queries, data models, analytical datasets.
+- **REST APIs** as a consumer.
+- **Model or pipeline lifecycle** – experiment tracking, deployment, monitoring, not just training.
+- Hands-on experience **operating** AI/ML or data systems in production.
+- **Data engineering** foundations: data quality, pipeline reliability, governance of technical standards.
+- **CI/CD** and infrastructure-as-code exposure.
+
+**Nice to have:** Databricks stack (Unity Catalog, Workflows, MLflow, Model Serving, Mosaic AI); PostgreSQL; LLM/agentic evaluation; GitHub Actions / Terraform / Declarative Automation Bundles; internal developer tooling and reusable templates.
+
+</details>
+
+---
+
+## Mapping: posting → this repository
+
+| Responsibility / requirement | Where it shows up here |
+|------------------------------|-------------------------|
+| Automated **benchmarks** + regression-style comparison | `data/*.jsonl` suites; `run_baseline.py` / `run_candidate.py`; same briefs for two prompt versions |
+| Evaluation without a single ground-truth label | Rubric + **judge model** + deterministic checks (`scoring.py`) |
+| **Observability** / behaviour vs. outcomes | **SQLite** run store (`db.py`); Markdown reports; optional `observability_report` |
+| **Quality gates** / governance | `gate.py` — thresholds, **BLOCK** / **PROMOTE** / conditional paths, explicit failed checks |
+| **Python** | `src/`, typed style, small modules |
+| **SQL** | SQLite schema; analytical aggregates in report scripts |
+| **REST** consumer | `llm_client.py` → Gemini **HTTP** API |
+| **Lifecycle** (change control, not one-off demos) | Prompt versions in config; repeatable CLI; documented reference run |
+| Reusable **templates** | Scripts as entrypoints; config-driven thresholds |
+| Databricks / CI / production drift | **Not implemented** — noted as extensions in **Scope** and **Recommendations** |
 
 ---
 
 ## Introduction
 
-Changing an LLM’s instructions for **campaign planning** is a **release decision**: a new prompt can look better on some briefs and **worse** on others (e.g. multi-audience, sustainability). This repository implements a **small, repeatable pipeline**: fixed inputs → generate outputs for two prompt versions → **score** → **aggregate** → apply **explicit rules** → **record** results. The goal is **evidence** for *ship / don’t ship / scope*, not a product UI.
+**Commercial context:** **Campaign optimisation**-style workflows increasingly use LLMs to turn briefs into actions. **Changing a prompt** is a **release decision**: the new version can improve some brief types and **regress** others. **Anecdotal** review (“it reads better”) is not enough for **governance**.
+
+**What this repo is:** A **minimal pipeline**: fixed campaign briefs → generate outputs for a **baseline** and a **candidate** prompt → **score** → **aggregate** → apply **explicit gate rules** → **persist** runs and write **reports**. It demonstrates **evaluation + observability + governance** in one coherent artefact—aligned with the **Innovation & Automation** remit above.
 
 ---
 
 ## Scope
 
-| In scope | Out of scope |
-|----------|----------------|
-| JSONL **test suites** (`data/`, e.g. `validation_suite.jsonl`) | Production traffic or LEGO internal systems |
-| **Baseline vs. candidate** runs via scripts | Full MLOps platform (CI, experiment registry, Databricks) |
-| **Scoring** (judge model + deterministic checks) + **weighted aggregate** | Human review workflows at scale |
-| **Quality gate** (`PROMOTE` / `BLOCK` / `PROMOTE_CONDITIONAL`) with thresholds | Automated routing of live requests by brief type |
-| **SQLite** run history; **Markdown** reports | Customer or confidential data |
+| In scope | Out of scope (posting-aligned “next steps”) |
+|----------|-----------------------------------------------|
+| JSONL **test suites** (`data/`, e.g. `validation_suite.jsonl`) | Live LEGO systems, production traffic, confidential data |
+| **Baseline vs. candidate** runs | **Databricks** deployment, model serving endpoints |
+| **Scoring** + **weighted aggregate** | Large-scale human-in-the-loop labelling |
+| **Quality gate** with thresholds | Full **CI/CD** (e.g. **GitHub Actions**) in this repo |
+| **SQLite** + Markdown / PDF artefacts | Automated **drift detection** on live telemetry |
 
-**Stack:** Python 3.10+, **stdlib** runtime (Gemini **REST** via `urllib`), **SQLite**, CLI scripts under `scripts/`.
+**Stack:** Python 3.10+, **stdlib** HTTP client to **Gemini REST**, **SQLite**, CLI under `scripts/`.
 
 ---
 
 ## Method
 
-1. **Inputs:** Each line in the JSONL suite is one brief + constraints (`eval_runner.py`).
-2. **Generation:** For each prompt version, call **Gemini** (`llm_client.py`) with the same cases; store raw text and latency.
-3. **Scoring:** Per output: relevance/actionability (judge), structure/constraints (rules) → **aggregate score** (`scoring.py`).
-4. **Persistence:** Runs, outputs, and scores in **SQLite** (`db.py`).
-5. **Gate:** Compare **mean** baseline vs. candidate metrics; evaluate thresholds + variance rule (`gate.py`).
-6. **Reporting:** `generate_report.py` writes [`reports/latest_report.md`](reports/latest_report.md); optional segment / observability scripts.
-
-**Process overview**
+1. **Inputs:** JSONL rows = brief + constraints (`eval_runner.py`).
+2. **Generation:** Gemini **REST** (`llm_client.py`); one run per prompt version; store raw output + latency.
+3. **Scoring:** Judge JSON scores + rule-based checks → per-case **aggregate** (`scoring.py`).
+4. **Persistence:** Runs / outputs / scores in **SQLite** (`db.py`).
+5. **Gate:** Mean metrics vs. thresholds + variance rule (`gate.py`) — **reliability as rules**, not a compliance checkbox.
+6. **Reporting:** `generate_report.py` → [`reports/latest_report.md`](reports/latest_report.md); optional segment / observability scripts.
 
 ```mermaid
 flowchart LR
   JSONL[JSONL briefs] --> RUN[Baseline / candidate runs]
-  RUN --> API[Gemini API]
+  RUN --> API[Gemini REST]
   API --> SCORE[Scoring]
   SCORE --> DB[(SQLite)]
   DB --> GATE[Quality gate]
-  GATE --> MD[Markdown reports]
+  GATE --> MD[Reports]
 ```
 
 ---
 
 ## Results
 
-Reference evaluation (checked-in narrative; **re-running** creates new run IDs):
+Reference run (documented in-repo; new API runs get new IDs):
 
 | | |
 |---|---|
 | **Suite** | 8 briefs — [`data/validation_suite.jsonl`](data/validation_suite.jsonl) |
 | **Prompts** | `v1-baseline` vs. `v3-user-candidate` |
-| **Runs (reference)** | Baseline **21**, candidate **22** |
-| **Gate** | **BLOCK** (not safe as **global** default) |
-| **Confidence** | **1.00** (*n* = 8; variance gate applied) |
+| **Runs** | Baseline **21**, candidate **22** |
+| **Gate** | **BLOCK** (not endorsed as **global** default) |
+| **Confidence** | **1.00** (*n* = 8) |
 
 **Mean scorecard**
 
@@ -67,20 +142,16 @@ Reference evaluation (checked-in narrative; **re-running** creates new run IDs):
 |--------|----------|-----------|---|
 | **Aggregate** | **4.844** | **4.542** | **−0.302** |
 | Actionability | 4.750 | 4.300 | −0.450 |
-| Constraints | 7.501 | 7.085 | −0.416 |
 
-**Segmentation:** Candidate **gains** on a launch-style case (**TC01**, ~**+1.25** aggregate vs. baseline) but **regresses** on a multi-audience sustainability case (**TC10**, ~**−3.46**). Detail: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md), [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md), [`reports/segment_report.md`](reports/segment_report.md).
-
-**Artifacts:** [`reports/latest_report.md`](reports/latest_report.md) (failed checks: aggregate drop > 5%, actionability > 8%, variance rule).
+**Segmentation:** Gain on **TC01** (launch-style); large regression on **TC10** (sustainability / multi-audience). Evidence: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md), [`reports/latest_report.md`](reports/latest_report.md), [`reports/segment_report.md`](reports/segment_report.md).
 
 ---
 
 ## Recommendations
 
-1. **Do not** promote the reference candidate (`v3-user-candidate`) as the **default for all brief types** on this evidence—portfolio mean drops and strong segment regression on **TC10**.
-2. **Prefer scoped rollout or routing**—e.g. allow the candidate path only where evaluation shows stability (illustratively **launch / single-audience**-style briefs), keep baseline elsewhere until the weak segments improve.
-3. **Iterate the candidate** against multi-audience / sustainability / stress cases, or maintain **separate prompt paths** by campaign type.
-4. **Keep segmented evaluation** in the release process so **local wins** do not mask **global risk**.
+1. **Product / governance:** Do **not** promote the reference candidate as the **default for all brief types** without further work—portfolio regression and **TC10** segment failure.
+2. **Scoped use:** Prefer **targeted** rollout or **separate prompt paths** where evaluation shows stability (e.g. launch-style briefs); iterate on multi-audience / stress cases.
+3. **Team-shaped next steps (posting):** Wire the suite into **CI (GitHub Actions)**; connect to **experiment tracking**; when platforms exist, align with **Databricks** patterns and **Data Office** standards for analytics adoption.
 
 ---
 
@@ -89,8 +160,8 @@ Reference evaluation (checked-in narrative; **re-running** creates new run IDs):
 | Path | Purpose |
 |------|---------|
 | `src/` | Config, LLM client, runner, scoring, DB, gate, reporting |
-| `scripts/` | `run_baseline.py`, `run_candidate.py`, `generate_report.py`, helpers |
-| `data/` | Test suites (JSONL) |
+| `scripts/` | Baseline/candidate runs, report generation |
+| `data/` | JSONL test suites |
 | `reports/` | Generated Markdown |
 | `report/` | LaTeX → PDF case studies |
 | `docs/` | `project-story.md`, `management-brief.md`, `case-study.md` |
@@ -99,7 +170,7 @@ Reference evaluation (checked-in narrative; **re-running** creates new run IDs):
 
 ## Reproducing the evaluation
 
-**Requirements:** Python 3.10+, [Gemini API key](https://aistudio.google.com/apikey). Optional: pdfLaTeX or Overleaf for PDFs.
+**Requirements:** Python 3.10+, [Gemini API key](https://aistudio.google.com/apikey).
 
 ```bash
 cp env.example .env   # set Gemini_API_KEY
@@ -108,13 +179,13 @@ python scripts/run_candidate.py
 python scripts/generate_report.py
 ```
 
-See `src/config.py` for optional env vars. **PDFs:** `cd report && ./build_pdf.sh`
+Optional env vars: `src/config.py`. **PDFs:** `cd report && ./build_pdf.sh`
 
 ---
 
 ## Security and data
 
-`.env` is not committed. No confidential LEGO data in this sample.
+`.env` is not committed. This sample contains **no** confidential LEGO data.
 
 ---
 
