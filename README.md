@@ -23,44 +23,6 @@ The posting describes a team of four **building from scratch** in **Innovation &
 
 **Out of scope in this repo (called out as natural next steps):** Databricks deployment pipelines, **GitHub Actions** CI, full **drift** monitoring in production—the pattern here is sized for a **portfolio proof** and extends in those directions.
 
-<details>
-<summary><strong>Full job description (reference — text from posting)</strong></summary>
-
-**Job description**
-
-We are looking for an **Analytics Engineer** to join our **Innovation & Automation** group within **Analytics & Insights**. You'll be building **evaluation and governance systems** for real products that power commercial decisions – **forecasting, pricing, campaign optimisation**.
-
-This is a **team of four, building from scratch** – with strong backing from Analytics & Insights leadership and close collaboration with key partners like the **Data Office** and **Digital Product** teams. The standards, the evaluation frameworks, the governance practices, the tooling – all of it is being shaped now, and you'd be part of shaping it.
-
-**Analytics & Insights - Innovation & Automation** Team sits at the centre of a three-team value chain in M&C Analytics: **Analytics Engineering** builds the data foundation, **we** build the AI and automation capability engine, **Analytics Interface** delivers the business products.
-
-Come and join us in **Billund** at one of the most loved brands in the world where you can have maximum impact!
-
-*Please apply with an English CV. No relocation support offered.*
-
-**Core responsibilities**
-
-- Build **evaluation frameworks** for LLM and agent outputs: automated benchmarks, structured regression suites, and human-in-the-loop review where ground-truth datasets don't exist.
-- **Instrument observability** into AI systems – accuracy monitoring, drift detection, and clear connection between system behaviour and business outcomes.
-- **Design deployment pipelines** for AI products – model serving endpoints, agent workflows, and LLM-based applications on **Databricks**.
-- Shape **AI governance** through **production quality gates**, lifecycle management, and systematic review that makes **reliability an engineering discipline**, not a compliance exercise.
-- Build **reusable templates**, **CI/CD** pipelines (GitHub Actions, Declarative Automation Bundles), and composable platform components.
-- Build and ship AI products from architecture through production monitoring, partnering with **Digital Product** and the **Data Office** where scope overlaps.
-- Support testing and onboarding of emerging platform capabilities with the **Data Office** establishing adoption standards for analytics.
-
-**Do you have what it takes**
-
-- Strong **Python** engineering: clean, typed, production-ready code as a default.
-- **SQL** proficiency: efficient queries, data models, analytical datasets.
-- **REST APIs** as a consumer.
-- **Model or pipeline lifecycle** – experiment tracking, deployment, monitoring, not just training.
-- Hands-on experience **operating** AI/ML or data systems in production.
-- **Data engineering** foundations: data quality, pipeline reliability, governance of technical standards.
-- **CI/CD** and infrastructure-as-code exposure.
-
-**Nice to have:** Databricks stack (Unity Catalog, Workflows, MLflow, Model Serving, Mosaic AI); PostgreSQL; LLM/agentic evaluation; GitHub Actions / Terraform / Declarative Automation Bundles; internal developer tooling and reusable templates.
-
-</details>
 
 ---
 
