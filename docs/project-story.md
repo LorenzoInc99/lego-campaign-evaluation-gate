@@ -1,7 +1,5 @@
 # Project story — from problem to results
 
-Use this page to walk someone through the work in order: **problem → desired outcome → decision → method → results**. It matches how an **Analytics Engineer** interview often flows: business risk, engineering response, stack, evidence.
-
 ---
 
 ## 1. The problem
