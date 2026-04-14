@@ -1,88 +1,86 @@
 # Evaluation and governance for LLM campaign suggestions
 
-**Walkthrough (problem → outcome → method → results + tools):** **[`docs/project-story.md`](docs/project-story.md)**.  
-**Stakeholder / manager brief:** [`docs/management-brief.md`](docs/management-brief.md). **Technical detail & reproduction:** this README below.
+Portfolio sample: an **offline evaluation gate** for LLM-generated campaign actions—same test briefs, **baseline vs. candidate** prompts, **scoring**, **quality gate**, persisted runs and reports.
+
+**More narrative:** [`docs/project-story.md`](docs/project-story.md) · **Stakeholder brief:** [`docs/management-brief.md`](docs/management-brief.md) · **PDFs:** build from [`report/`](report/README.md) (`LEGO_Case_Study_Report.tex`, `Project_Development_Report.tex`)
 
 ---
 
-This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. The quickest path to understand the work is the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)). For a **written narrative** (what was built and why, development gaps, tests, results), build [`report/Project_Development_Report.tex`](report/Project_Development_Report.tex) → `Project_Development_Report.pdf`. Then skim [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
+## Introduction
+
+Changing an LLM’s instructions for **campaign planning** is a **release decision**: a new prompt can look better on some briefs and **worse** on others (e.g. multi-audience, sustainability). This repository implements a **small, repeatable pipeline**: fixed inputs → generate outputs for two prompt versions → **score** → **aggregate** → apply **explicit rules** → **record** results. The goal is **evidence** for *ship / don’t ship / scope*, not a product UI.
 
 ---
 
-## What you are looking at
+## Scope
 
-| Area | What is implemented |
-|------|----------------------|
-| Evaluation | JSONL test suite; identical inputs for baseline vs. candidate; rubric-based scoring with a judge model |
-| Regression | Aggregate and per-case comparisons; report artifacts for trends |
-| Governance | Explicit gate outcomes (`PROMOTE` / `BLOCK` / conditional paths) driven by thresholds |
-| Observability | Run history in SQLite; Markdown reports under `reports/` |
-| Engineering | Python 3.10+, stdlib only for runtime (Gemini via REST); repeatable CLI entrypoints |
+| In scope | Out of scope |
+|----------|----------------|
+| JSONL **test suites** (`data/`, e.g. `validation_suite.jsonl`) | Production traffic or LEGO internal systems |
+| **Baseline vs. candidate** runs via scripts | Full MLOps platform (CI, experiment registry, Databricks) |
+| **Scoring** (judge model + deterministic checks) + **weighted aggregate** | Human review workflows at scale |
+| **Quality gate** (`PROMOTE` / `BLOCK` / `PROMOTE_CONDITIONAL`) with thresholds | Automated routing of live requests by brief type |
+| **SQLite** run history; **Markdown** reports | Customer or confidential data |
+
+**Stack:** Python 3.10+, **stdlib** runtime (Gemini **REST** via `urllib`), **SQLite**, CLI scripts under `scripts/`.
 
 ---
 
-## Results (reference evaluation)
+## Method
 
-The repository includes a **completed reference run** so you can judge both the *business outcome* (baseline vs. candidate prompts) and the *system behaviour* (gate + artifacts), without re-executing the suite.
+1. **Inputs:** Each line in the JSONL suite is one brief + constraints (`eval_runner.py`).
+2. **Generation:** For each prompt version, call **Gemini** (`llm_client.py`) with the same cases; store raw text and latency.
+3. **Scoring:** Per output: relevance/actionability (judge), structure/constraints (rules) → **aggregate score** (`scoring.py`).
+4. **Persistence:** Runs, outputs, and scores in **SQLite** (`db.py`).
+5. **Gate:** Compare **mean** baseline vs. candidate metrics; evaluate thresholds + variance rule (`gate.py`).
+6. **Reporting:** `generate_report.py` writes [`reports/latest_report.md`](reports/latest_report.md); optional segment / observability scripts.
 
-### Baseline vs. candidate (prompt experiment)
+**Process overview**
+
+```mermaid
+flowchart LR
+  JSONL[JSONL briefs] --> RUN[Baseline / candidate runs]
+  RUN --> API[Gemini API]
+  API --> SCORE[Scoring]
+  SCORE --> DB[(SQLite)]
+  DB --> GATE[Quality gate]
+  GATE --> MD[Markdown reports]
+```
+
+---
+
+## Results
+
+Reference evaluation (checked-in narrative; **re-running** creates new run IDs):
 
 | | |
 |---|---|
-| **Suite** | 8 campaign briefs — [`data/validation_suite.jsonl`](data/validation_suite.jsonl) |
-| **Prompts** | Baseline `v1-baseline` vs. candidate `v3-user-candidate` |
-| **Reference run IDs** | Baseline **21**, candidate **22** |
-| **Gate decision** | **BLOCK** (candidate not safe to ship as global default) |
-| **Confidence** | **1.00** (sample size *n* = 8; variance gate applied) |
+| **Suite** | 8 briefs — [`data/validation_suite.jsonl`](data/validation_suite.jsonl) |
+| **Prompts** | `v1-baseline` vs. `v3-user-candidate` |
+| **Runs (reference)** | Baseline **21**, candidate **22** |
+| **Gate** | **BLOCK** (not safe as **global** default) |
+| **Confidence** | **1.00** (*n* = 8; variance gate applied) |
 
-**Mean scorecard** (same rubric scale as in [`reports/latest_report.md`](reports/latest_report.md)):
+**Mean scorecard**
 
 | Metric | Baseline | Candidate | Δ |
 |--------|----------|-----------|---|
-| Aggregate | **4.844** | **4.542** | **−0.302** |
+| **Aggregate** | **4.844** | **4.542** | **−0.302** |
 | Actionability | 4.750 | 4.300 | −0.450 |
 | Constraints | 7.501 | 7.085 | −0.416 |
 
-**Segmentation (why the aggregate matters):** the candidate **improves** on a structured launch-style case (**TC01**, about **+1.25** aggregate points vs. baseline) but **regresses strongly** on a multi-audience sustainability scenario (**TC10**, about **−3.46** points). That pattern is exactly what **segmented evaluation** is meant to surface before a broad rollout. Full narrative: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md); detail: [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md), [`reports/segment_report.md`](reports/segment_report.md).
+**Segmentation:** Candidate **gains** on a launch-style case (**TC01**, ~**+1.25** aggregate vs. baseline) but **regresses** on a multi-audience sustainability case (**TC10**, ~**−3.46**). Detail: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md), [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md), [`reports/segment_report.md`](reports/segment_report.md).
 
-### What the system produced (same reference run)
-
-| Output | Role |
-|--------|------|
-| **SQLite run history** | Baseline and candidate runs, scores, and outputs stored for audit and comparison (`data/runs.sqlite` is gitignored locally; structure is defined in `src/db.py`). |
-| **Markdown reports** | e.g. [`reports/latest_report.md`](reports/latest_report.md) — pairwise deltas, scorecard, **failed gate checks** (aggregate drop 6.23% > 5%, actionability drop 9.47% > 8%, variance stability), and proxy panel. |
-| **Gate logic** | Threshold-based **BLOCK** with explicit reasons; variance gate active because *n* ≥ 5. |
-
-Re-running the scripts with your own API key will create **new** run IDs; the numbers above stay valid as the **checked-in illustrative outcome** tied to the case study PDF.
+**Artifacts:** [`reports/latest_report.md`](reports/latest_report.md) (failed checks: aggregate drop > 5%, actionability > 8%, variance rule).
 
 ---
 
-## Architecture (high level)
+## Recommendations
 
-```mermaid
-flowchart TB
-  subgraph inputs [Inputs]
-    TC[test_cases.jsonl]
-    PV[Prompt versions via config]
-  end
-  subgraph run [Evaluation]
-    GEN[Gemini generateContent]
-    JUDGE[Scoring / judge prompts]
-  end
-  subgraph store [Persistence]
-    DB[(SQLite runs)]
-  end
-  subgraph out [Outputs]
-    RPT[Markdown reports]
-    GATE[Gate decision]
-  end
-  TC --> GEN
-  PV --> GEN
-  GEN --> JUDGE
-  JUDGE --> DB
-  DB --> RPT
-  DB --> GATE
-```
+1. **Do not** promote the reference candidate (`v3-user-candidate`) as the **default for all brief types** on this evidence—portfolio mean drops and strong segment regression on **TC10**.
+2. **Prefer scoped rollout or routing**—e.g. allow the candidate path only where evaluation shows stability (illustratively **launch / single-audience**-style briefs), keep baseline elsewhere until the weak segments improve.
+3. **Iterate the candidate** against multi-audience / sustainability / stress cases, or maintain **separate prompt paths** by campaign type.
+4. **Keep segmented evaluation** in the release process so **local wins** do not mask **global risk**.
 
 ---
 
@@ -90,47 +88,33 @@ flowchart TB
 
 | Path | Purpose |
 |------|---------|
-| `src/` | Configuration, LLM client, evaluation runner, scoring, persistence, gates, reporting |
-| `scripts/` | Baseline/candidate runs, report generation, run comparison |
-| `data/` | Test suites (`test_cases.jsonl`, `validation_suite.jsonl`, …) |
-| `reports/` | Example generated Markdown outputs |
-| `report/` | LaTeX case study (PDF builds locally or via Overleaf; see `report/overleaf/`) |
-| `docs/` | Case study and management brief |
-
-Supporting narratives: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md), [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md).
+| `src/` | Config, LLM client, runner, scoring, DB, gate, reporting |
+| `scripts/` | `run_baseline.py`, `run_candidate.py`, `generate_report.py`, helpers |
+| `data/` | Test suites (JSONL) |
+| `reports/` | Generated Markdown |
+| `report/` | LaTeX → PDF case studies |
+| `docs/` | `project-story.md`, `management-brief.md`, `case-study.md` |
 
 ---
 
-## Reproducing the evaluation (for technical review)
+## Reproducing the evaluation
 
-**Requirements:** Python 3.10+, and a Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey). For a PDF from the LaTeX source: pdfLaTeX + TikZ, or Overleaf.
-
-```bash
-cd job-application-lego
-cp env.example .env
-# Set Gemini_API_KEY in .env (never committed; see .gitignore)
-```
-
-Optional variables are documented in `src/config.py` (`BASELINE_PROMPT_VERSION`, `CANDIDATE_PROMPT_VERSION`, `DATASET_PATH`, temperatures).
-
-From the repository root:
+**Requirements:** Python 3.10+, [Gemini API key](https://aistudio.google.com/apikey). Optional: pdfLaTeX or Overleaf for PDFs.
 
 ```bash
+cp env.example .env   # set Gemini_API_KEY
 python scripts/run_baseline.py
 python scripts/run_candidate.py
 python scripts/generate_report.py
 ```
 
-Additional scripts: `compare_runs.py`, `generate_segment_report.py`, `generate_observability_report.py`.
-
-**PDFs:** `cd report && ./build_pdf.sh` produces `LEGO_Case_Study_Report.pdf` and `Project_Development_Report.pdf` when a LaTeX toolchain is available.
-
+See `src/config.py` for optional env vars. **PDFs:** `cd report && ./build_pdf.sh`
 
 ---
 
 ## Security and data
 
-API keys belong in `.env` locally; that file is **not** tracked. `env.example` shows the variable names only. This sample does not include confidential LEGO data.
+`.env` is not committed. No confidential LEGO data in this sample.
 
 ---
 
