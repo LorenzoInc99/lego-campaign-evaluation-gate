@@ -16,6 +16,42 @@ This repository is a self-contained **Analytics Engineering** sample: a release-
 
 ---
 
+## Results (reference evaluation)
+
+The repository includes a **completed reference run** so you can judge both the *business outcome* (baseline vs. candidate prompts) and the *system behaviour* (gate + artifacts), without re-executing the suite.
+
+### Baseline vs. candidate (prompt experiment)
+
+| | |
+|---|---|
+| **Suite** | 8 campaign briefs — [`data/validation_suite.jsonl`](data/validation_suite.jsonl) |
+| **Prompts** | Baseline `v1-baseline` vs. candidate `v3-user-candidate` |
+| **Reference run IDs** | Baseline **21**, candidate **22** |
+| **Gate decision** | **BLOCK** (candidate not safe to ship as global default) |
+| **Confidence** | **1.00** (sample size *n* = 8; variance gate applied) |
+
+**Mean scorecard** (same rubric scale as in [`reports/latest_report.md`](reports/latest_report.md)):
+
+| Metric | Baseline | Candidate | Δ |
+|--------|----------|-----------|---|
+| Aggregate | **4.844** | **4.542** | **−0.302** |
+| Actionability | 4.750 | 4.300 | −0.450 |
+| Constraints | 7.501 | 7.085 | −0.416 |
+
+**Segmentation (why the aggregate matters):** the candidate **improves** on a structured launch-style case (**TC01**, about **+1.25** aggregate points vs. baseline) but **regresses strongly** on a multi-audience sustainability scenario (**TC10**, about **−3.46** points). That pattern is exactly what **segmented evaluation** is meant to surface before a broad rollout. Full narrative: [`FINAL_DECISION_STORY.md`](FINAL_DECISION_STORY.md); detail: [`VALIDATION_SUITE_SUMMARY.md`](VALIDATION_SUITE_SUMMARY.md), [`reports/segment_report.md`](reports/segment_report.md).
+
+### What the system produced (same reference run)
+
+| Output | Role |
+|--------|------|
+| **SQLite run history** | Baseline and candidate runs, scores, and outputs stored for audit and comparison (`data/runs.sqlite` is gitignored locally; structure is defined in `src/db.py`). |
+| **Markdown reports** | e.g. [`reports/latest_report.md`](reports/latest_report.md) — pairwise deltas, scorecard, **failed gate checks** (aggregate drop 6.23% > 5%, actionability drop 9.47% > 8%, variance stability), and proxy panel. |
+| **Gate logic** | Threshold-based **BLOCK** with explicit reasons; variance gate active because *n* ≥ 5. |
+
+Re-running the scripts with your own API key will create **new** run IDs; the numbers above stay valid as the **checked-in illustrative outcome** tied to the case study PDF and phase notes.
+
+---
+
 ## Architecture (high level)
 
 ```mermaid
