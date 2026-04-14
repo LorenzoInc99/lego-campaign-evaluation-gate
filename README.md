@@ -1,20 +1,18 @@
-# Campaign suggestion reliability gate (LEGO Analytics Engineer — portfolio)
+# Evaluation and governance for LLM campaign suggestions
 
-A small, production-minded **evaluation and governance** MVP for LLM-generated campaign recommendations: structured **baseline vs. candidate** runs, rubric scoring, **quality gates**, SQLite-backed run history, and Markdown reports—including **segmented** views so portfolio-level decisions are not fooled by narrow wins.
-
-**Companion PDF:** build the case study from [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex) (see [report/README.md](report/README.md)). Narrative summary for GitHub: [`docs/case-study.md`](docs/case-study.md).
+This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. If you are reviewing it for a hiring decision, the quickest path is to read the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)), then skim [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
 
 ---
 
-## What this demonstrates
+## What you are looking at
 
 | Area | What is implemented |
 |------|----------------------|
-| Evaluation | JSONL test suite, same inputs for baseline/candidate, rubric + judge model |
-| Regression | Compare aggregates and per-case scores; trend-style reporting |
-| Governance | Explicit gate outcomes (`PROMOTE` / `BLOCK` / conditional paths) with thresholds |
-| Observability | Run records, generated reports under `reports/` |
-| Engineering | Typed Python, no extra pip deps (stdlib + Gemini REST API), repeatable CLI scripts |
+| Evaluation | JSONL test suite; identical inputs for baseline vs. candidate; rubric-based scoring with a judge model |
+| Regression | Aggregate and per-case comparisons; report artifacts for trends |
+| Governance | Explicit gate outcomes (`PROMOTE` / `BLOCK` / conditional paths) driven by thresholds |
+| Observability | Run history in SQLite; Markdown reports under `reports/` |
+| Engineering | Python 3.10+, stdlib only for runtime (Gemini via REST); repeatable CLI entrypoints |
 
 ---
 
@@ -51,40 +49,30 @@ flowchart TB
 
 | Path | Purpose |
 |------|---------|
-| `src/` | Config, LLM client, evaluation runner, scoring, DB, gates, reporting |
-| `scripts/` | `run_baseline.py`, `run_candidate.py`, report generators, `compare_runs.py` |
+| `src/` | Configuration, LLM client, evaluation runner, scoring, persistence, gates, reporting |
+| `scripts/` | Baseline/candidate runs, report generation, run comparison |
 | `data/` | Test suites (`test_cases.jsonl`, `validation_suite.jsonl`, …) |
-| `reports/` | Generated Markdown (e.g. latest run summary) |
-| `report/` | LaTeX case study → **PDF** for recruiters / hiring managers |
-| `docs/` | Short case-study write-up for the repo |
+| `reports/` | Example generated Markdown outputs |
+| `report/` | LaTeX case study (PDF builds locally or via Overleaf; see `report/overleaf/`) |
+| `docs/` | Concise narrative aligned with the PDF |
 
-Phase notes (`PHASE*.md`, `FINAL_DECISION_STORY.md`) document design decisions and iteration history.
-
----
-
-## Prerequisites
-
-- **Python 3.10+**
-- A **Gemini API key** ([Google AI Studio](https://aistudio.google.com/apikey))
-- For the PDF: a LaTeX install with **pdfLaTeX** and TikZ (TeX Live / MacTeX / MiKTeX), or **Overleaf**
+Design notes and iteration history appear in `PHASE*.md` and `FINAL_DECISION_STORY.md`.
 
 ---
 
-## Setup
+## Reproducing the evaluation (for technical review)
+
+**Requirements:** Python 3.10+, and a Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey). For a PDF from the LaTeX source: pdfLaTeX + TikZ, or Overleaf.
 
 ```bash
 cd job-application-lego
 cp env.example .env
-# Edit .env: set Gemini_API_KEY
+# Set Gemini_API_KEY in .env (never committed; see .gitignore)
 ```
 
-Optional environment variables (see `src/config.py`): `BASELINE_PROMPT_VERSION`, `CANDIDATE_PROMPT_VERSION`, `DATASET_PATH`, `MODEL_TEMPERATURE`, `JUDGE_TEMPERATURE`.
+Optional variables are documented in `src/config.py` (`BASELINE_PROMPT_VERSION`, `CANDIDATE_PROMPT_VERSION`, `DATASET_PATH`, temperatures).
 
----
-
-## Run evaluation
-
-From the project root (so `src` resolves correctly):
+From the repository root:
 
 ```bash
 python scripts/run_baseline.py
@@ -92,42 +80,15 @@ python scripts/run_candidate.py
 python scripts/generate_report.py
 ```
 
-Other utilities:
+Additional scripts: `compare_runs.py`, `generate_segment_report.py`, `generate_phase4_report.py`.
 
-```bash
-python scripts/compare_runs.py
-python scripts/generate_segment_report.py
-python scripts/generate_phase4_report.py
-```
+**PDF:** `cd report && ./build_pdf.sh` produces `LEGO_Case_Study_Report.pdf` when a LaTeX toolchain is available.
 
 ---
 
-## Build the PDF case study
+## Security and data
 
-```bash
-cd report
-./build_pdf.sh
-# or: pdflatex -interaction=nonstopmode LEGO_Case_Study_Report.tex  # twice
-```
-
-Output: `report/LEGO_Case_Study_Report.pdf`. You can attach this PDF in applications or follow-up emails.
-
----
-
-## Demo video (optional)
-
-After you record a walkthrough, add the link near the top of this README, for example:
-
-`**Demo:** [screen recording](https://…)`  
-
-Suggested coverage: environment setup, one baseline + candidate run, opening `reports/latest_report.md`, and the gate decision story.
-
----
-
-## Security
-
-- **Never commit** `.env` or API keys. Use `env.example` as a template only.
-- This repo is intended as a **portfolio sample**; it does not contain LEGO confidential data.
+API keys belong in `.env` locally; that file is **not** tracked. `env.example` shows the variable names only. This sample does not include confidential LEGO data.
 
 ---
 
