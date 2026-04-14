@@ -1,6 +1,7 @@
 # Evaluation and governance for LLM campaign suggestions
 
-**Stakeholder / manager conversation:** use **[`docs/management-brief.md`](docs/management-brief.md)** as the narrative spine (problem, outcome, boundaries); use this README for technical detail and reproduction.
+**Walkthrough (problem → outcome → method → results + tools):** **[`docs/project-story.md`](docs/project-story.md)**.  
+**Stakeholder / manager brief:** [`docs/management-brief.md`](docs/management-brief.md). **Technical detail & reproduction:** this README below.
 
 ---
 
