@@ -4,7 +4,7 @@
 
 ---
 
-This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. The quickest path to understand the work is the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)), then [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
+This repository is a self-contained **Analytics Engineering** sample: a release-style **evaluation gate** for LLM-generated campaign recommendations. The quickest path to understand the work is the **case study PDF** (source in [`report/LEGO_Case_Study_Report.tex`](report/LEGO_Case_Study_Report.tex); build instructions in [`report/README.md`](report/README.md)). For a **written narrative** (what was built and why, development gaps, tests, results), build [`report/Project_Development_Report.tex`](report/Project_Development_Report.tex) → `Project_Development_Report.pdf`. Then skim [`docs/case-study.md`](docs/case-study.md) and the code under `src/`.
 
 ---
 
@@ -122,7 +122,8 @@ python scripts/generate_report.py
 
 Additional scripts: `compare_runs.py`, `generate_segment_report.py`, `generate_observability_report.py`.
 
-**PDF:** `cd report && ./build_pdf.sh` produces `LEGO_Case_Study_Report.pdf` when a LaTeX toolchain is available.
+**PDFs:** `cd report && ./build_pdf.sh` produces `LEGO_Case_Study_Report.pdf` and `Project_Development_Report.pdf` when a LaTeX toolchain is available.
+
 
 ---
 

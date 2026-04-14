@@ -1,40 +1,42 @@
-# LaTeX case study report
+# LaTeX reports (PDF)
 
-## File
+## Files
 
-- `LEGO_Case_Study_Report.tex` — full report with TikZ process diagrams and job-keyword highlighting (`\JD{...}`).
+| Source | Contents |
+|--------|----------|
+| `LEGO_Case_Study_Report.tex` | Formal case study: diagrams, role-aligned keywords, tables |
+| `Project_Development_Report.tex` | **Narrative:** what was built and why, development (needs / in place / gaps), tests & examples, results |
+
+Both are **single-file** projects (no extra `.sty`). Compiler: **pdfLaTeX**.
 
 ## Compile locally
 
-Requires a LaTeX distribution (TeX Live, MacTeX, MiKTeX) with `pdflatex` and TikZ.
+Requires TeX Live / MacTeX / MiKTeX with `pdflatex`.
 
 ```bash
 cd report
 ./build_pdf.sh
 ```
 
-Or manually:
+Build only one file:
 
 ```bash
-cd report
-pdflatex -interaction=nonstopmode LEGO_Case_Study_Report.tex
-pdflatex -interaction=nonstopmode LEGO_Case_Study_Report.tex
+./build_pdf.sh Project_Development_Report.tex
 ```
 
-Or:
+Manual:
 
 ```bash
-latexmk -pdf LEGO_Case_Study_Report.tex
+pdflatex -interaction=nonstopmode Project_Development_Report.tex
+pdflatex -interaction=nonstopmode Project_Development_Report.tex
 ```
 
-Output: `LEGO_Case_Study_Report.pdf`
+Outputs: `LEGO_Case_Study_Report.pdf`, `Project_Development_Report.pdf`
 
 ## Overleaf
 
-Use the ready-made folder **`overleaf/`** in this directory: it contains `LEGO_Case_Study_Report.tex` plus `README.txt` with upload steps. Zip **`report/overleaf`** and upload the zip to Overleaf, or upload that folder’s contents.
+Upload `LEGO_Case_Study_Report.tex` and/or `Project_Development_Report.tex` from `report/` (or use the **`overleaf/`** folder copies). Set compiler to **pdfLaTeX**. See `overleaf/README.txt`.
 
-Alternatively, upload only `LEGO_Case_Study_Report.tex` from the `report/` folder (single-file project; no separate `.sty` needed). Compiler: **pdfLaTeX**.
+## Case study keywords (`LEGO_Case_Study_Report.tex`)
 
-## Keywords
-
-Highlighted terms map to the Analytics Engineer posting: evaluation frameworks, LLM/agent outputs, observability, governance, quality gates, regression, Python, SQL, REST API, lifecycle, Data Office, Digital Product, campaign optimisation, CI/CD, Databricks (as future work), etc.
+Highlighted terms (`\JD{...}`) map to Analytics Engineering themes: evaluation frameworks, LLM outputs, observability, governance, quality gates, regression, Python, SQL, REST API, lifecycle, campaign optimisation, CI/CD, Databricks (as future work), etc.

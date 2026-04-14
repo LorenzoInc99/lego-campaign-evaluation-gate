@@ -1,20 +1,18 @@
-OVERLEAF UPLOAD — WHAT GOES IN THIS FOLDER
-==========================================
+OVERLEAF UPLOAD
+===============
 
-You only need ONE file for this project:
+This folder can contain either or both self-contained .tex files (no .sty, no images):
 
-  LEGO_Case_Study_Report.tex
+  LEGO_Case_Study_Report.tex       — formal case study (diagrams, tables)
+  Project_Development_Report.tex   — project narrative (why, how built, tests, results)
 
-There are no images, no separate .sty files, and no bibliography file. Everything is in that single .tex file.
+Upload one file per Overleaf project, or zip both if you use a multi-file project (set main document in Overleaf).
 
-HOW TO UPLOAD TO OVERLEAF
--------------------------
-1. Zip this entire folder (or upload the folder contents via Overleaf’s upload).
-2. In Overleaf: Menu (top left) → Compiler → choose "pdfLaTeX".
-3. Open LEGO_Case_Study_Report.tex and click Recompile.
-
-The PDF downloads from Overleaf when build succeeds.
+STEPS
+-----
+1. In Overleaf: Menu → Compiler → pdfLaTeX
+2. Open the .tex you want as the main file → Recompile
 
 NOTE
 ----
-This copy is the same as ../LEGO_Case_Study_Report.tex in the repo. If you edit one, copy your changes to the other so they stay in sync.
+Copies mirror ../LEGO_Case_Study_Report.tex and ../Project_Development_Report.tex. Edit the parent files in report/ and re-copy here if you use this folder for upload.

@@ -1,0 +1,145 @@
+% Project development narrative — compile with pdflatex (twice) or ./build_pdf.sh Project_Development_Report
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=22mm]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\definecolor{Accent}{RGB}{0,90,120}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Accent,
+  urlcolor=Accent,
+}
+
+\title{\textbf{Project narrative: LLM campaign evaluation gate}\\[0.35em]
+\large What was built, how it was developed, tests, and results}
+\author{Portfolio project}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+This document summarises the motivation for a \textbf{release-style evaluation gate} for LLM-generated campaign suggestions, the way the work was scoped and implemented, the test suite used, and the \textbf{reference results} from a baseline vs.\ candidate prompt comparison. It complements the technical repository and the formal case study PDF.
+\end{abstract}
+
+\section{What I chose to build and why}
+
+The target role emphasises \textbf{evaluation}, \textbf{observability}, and \textbf{governance} for LLM outputs used in commercial decision support (e.g.\ campaign planning). Raw model output is not enough: teams need a repeatable way to know whether a \textbf{prompt or configuration change} is safe to ship \emph{across} brief types.
+
+I therefore scoped a minimal but end-to-end artefact that:
+
+\begin{itemize}
+  \item runs a \textbf{fixed} set of campaign briefs through two prompt versions (\textbf{baseline} vs.\ \textbf{candidate});
+  \item \textbf{scores} outputs with a rubric + deterministic checks + a judge model;
+  \item applies a \textbf{quality gate} with explicit pass/block rules and documented reasons;
+  \item \textbf{persist}s runs in SQLite and emits \textbf{Markdown reports} for audit and review.
+\end{itemize}
+
+The goal was not a polished product UI, but a \textbf{credible engineering template}: measure $\rightarrow$ compare $\rightarrow$ decide $\rightarrow$ record.
+
+\section{How the project was developed}
+
+\subsection{What I needed}
+
+\begin{itemize}
+  \item A \textbf{hosted LLM API} for generation and judging (Gemini via REST, \texttt{urllib}).
+  \item \textbf{Python 3.10+} with no mandatory third-party runtime dependencies for the core pipeline.
+  \item \textbf{Structured test inputs} (JSONL) representing varied campaign types (launch, conversion, sustainability, stress cases).
+  \item \textbf{Clear thresholds} for when a candidate should be blocked (aggregate drop, actionability, variance stability).
+\end{itemize}
+
+\subsection{What is in place}
+
+\begin{itemize}
+  \item \textbf{Evaluation loop:} \texttt{scripts/run\_baseline.py}, \texttt{scripts/run\_candidate.py}; shared runner in \texttt{src/eval\_runner.py}.
+  \item \textbf{Scoring:} \texttt{src/scoring.py} (judge JSON, structure + constraint checks, weighted aggregate).
+  \item \textbf{Gate:} \texttt{src/gate.py} (\texttt{PROMOTE} / \texttt{BLOCK} / \texttt{PROMOTE\_CONDITIONAL} with thresholds).
+  \item \textbf{Persistence:} SQLite schema in \texttt{src/db.py}; reports via \texttt{src/reporting.py} and \texttt{scripts/generate\_report.py}.
+  \item \textbf{Extra views:} segment reports and observability-style summaries (\texttt{scripts/generate\_segment\_report.py}, \texttt{scripts/generate\_observability\_report.py}).
+\end{itemize}
+
+\subsection{What is missing or intentionally out of scope}
+
+\begin{itemize}
+  \item \textbf{Production integration:} no live traffic, no LEGO internal systems, no customer data.
+  \item \textbf{Full MLOps:} no scheduled CI (e.g.\ GitHub Actions), no central experiment registry; natural next steps.
+  \item \textbf{Human labels at scale:} rubric + judge model stand in for larger review workflows.
+  \item \textbf{Multi-model routing in production:} not implemented; segmentation is reported for \textbf{decision support}, not automated routing.
+\end{itemize}
+
+\section{Tests and examples}
+
+\subsection{Test suite}
+
+The reference evaluation uses \textbf{eight} briefs in \texttt{data/validation\_suite.jsonl}, covering awareness, conversion, retention, sustainability (multi-audience), and stress cases (ambiguous brief, conflicting goals). Each line is one JSON object with a brief text and structured constraints.
+
+\subsection{How to run (smoke / full evaluation)}
+
+From the repository root, with \texttt{Gemini\_API\_KEY} in \texttt{.env}:
+
+\begin{verbatim}
+python scripts/run_baseline.py
+python scripts/run_candidate.py
+python scripts/generate_report.py
+\end{verbatim}
+
+Optional: \texttt{compare\_runs.py}, \texttt{generate\_segment\_report.py}, \texttt{generate\_observability\_report.py}.
+
+\subsection{Illustrative examples (reference run)}
+
+\begin{itemize}
+  \item \textbf{TC01} (launch / awareness): candidate \textbf{gains} vs.\ baseline on aggregate (illustrative $\approx +1.25$ points) --- shows the candidate can win on structured launch-style briefs.
+  \item \textbf{TC10} (sustainability, EU, dual audience): candidate \textbf{regresses} strongly (illustrative $\approx -3.46$ aggregate points) --- shows the risk of \textbf{hidden regressions} when only average or narrow-case testing is used.
+\end{itemize}
+
+\section{Results (reference run: baseline 21 vs.\ candidate 22)}
+
+\subsection{Gate outcome}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Decision & \textbf{BLOCK} \\
+Confidence & $1.00$ (variance gate applied; $n = 8$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Interpretation:} the candidate prompt is \textbf{not} recommended as the global default without further iteration or scoped rollout; evidence is both portfolio-level regression and segment-level divergence.
+
+\subsection{Mean scorecard (portfolio)}
+
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Metric (mean)} & \textbf{Baseline} & \textbf{Candidate} & \textbf{$\Delta$} \\
+\midrule
+Relevance & 2.966 & 2.901 & $-0.065$ \\
+Actionability & 4.750 & 4.300 & $-0.450$ \\
+Constraints & 7.501 & 7.085 & $-0.416$ \\
+Structure & 4.165 & 3.955 & $-0.210$ \\
+\textbf{Aggregate} & \textbf{4.844} & \textbf{4.542} & \textbf{$-0.302$} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Failed gate checks (illustrative)}
+
+The reference report records checks such as: aggregate drop \textgreater{} 5\%, actionability drop \textgreater{} 8\%, and variance instability beyond the configured threshold. These are \textbf{explicit reasons} for \texttt{BLOCK}, not a subjective verdict.
+
+\section{Closing}
+
+This project demonstrates a \textbf{control system} for LLM changes: comparable inputs, measurable outputs, a gate, and an audit trail. The reference outcome (BLOCK with segment wins and losses) is intentionally \textbf{instructive}: it shows why \textbf{segmented evaluation} matters for governance in campaign-style assistants.
+
+\end{document}

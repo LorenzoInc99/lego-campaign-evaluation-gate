@@ -82,6 +82,7 @@ To keep expectations aligned in a manager conversation:
 | Document | Best for |
 |----------|----------|
 | Case study PDF (`report/LEGO_Case_Study_Report.tex` → PDF) | Figures, tables, role-aligned narrative |
+| Development narrative PDF (`report/Project_Development_Report.tex` → PDF) | What was built and why, gaps, tests, results |
 | `FINAL_DECISION_STORY.md` | One-screen decision summary |
 | `README.md` | Technical orientation and reproduction |
 | `docs/case-study.md` | Short engineering narrative |
